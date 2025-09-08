@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import scapy.all as scapy
 import netifaces
+import requests
 
 def get_local_ip():
     #Get local IP and default gateway interface (GUID)
@@ -32,6 +33,17 @@ def scan(ip_range, iface):
         devices.append({"ip": received.psrc, "mac": received.hwsrc})
     return devices
 
+#get vendor info 
+def get_vendor(mac):
+    try:
+        url = f"https://api.macvendors.com/{mac}"
+        r = requests.get(url, timeout=2)
+        if r.status_code == 200:
+            return r.text.strip()
+    except:
+        pass
+    return "Unknown"
+
 if __name__ == "__main__":
     local_ip = get_local_ip()
     iface = detect_scapy_iface(local_ip)
@@ -41,6 +53,7 @@ if __name__ == "__main__":
     print(f"Scanning network: {ip_range}...")
 
     devices = scan(ip_range, iface)
-    print(f"\n[+] Devices found: {len(devices)}")
+    print(f"Devices found: {len(devices)}")
     for dev in devices:
-        print(f" - {dev['ip']}  |  {dev['mac']}")
+        vendor = get_vendor(dev["mac"])
+        print(f" - {dev['ip']}  |  {dev['mac']}  |  {vendor}")
