@@ -2,6 +2,7 @@
 import scapy.all as scapy
 import netifaces
 import requests
+import time
 
 def get_local_ip():
     #Get local IP and default gateway interface (GUID)
@@ -52,8 +53,12 @@ if __name__ == "__main__":
     print(f"Using interface: {iface}...")
     print(f"Scanning network: {ip_range}...")
 
+for i in range(5):
     devices = scan(ip_range, iface)
     print(f"Devices found: {len(devices)}")
     for dev in devices:
         vendor = get_vendor(dev["mac"])
         print(f" - {dev['ip']}  |  {dev['mac']}  |  {vendor}")
+    time.sleep(2)
+        
+ 
