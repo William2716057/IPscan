@@ -12,6 +12,7 @@ def get_local_ip():
     local_ip = netifaces.ifaddresses(default_iface)[netifaces.AF_INET][0]['addr']
     return local_ip
 
+#attempt to get device name
 def get_hostname(ip):
     try:
         return socket.gethostbyaddr(ip)[0]
@@ -28,6 +29,23 @@ def detect_scapy_iface(local_ip):
         except Exception:
             continue
     return scapy.conf.iface
+
+def os_guess(ip, iface):
+    """Send ICMP ping, check TTL to guess OS"""
+    try:
+        pkt = scapy.IP(dst=ip)/scapy.ICMP()
+        reply = scapy.sr1(pkt, timeout=1, iface=iface, verbose=False)
+        if reply:
+            ttl = reply.ttl
+            if ttl <= 64:
+                return f"Linux/Unix (TTL {ttl})"
+            elif ttl <= 128:
+                return f"Windows (TTL {ttl})"
+            else:
+                return f"Network device/Router (TTL {ttl})"
+    except:
+        pass
+    return "Unknown"
 
 def scan(ip_range, iface):
     #Perform ARP scan on given IP range using the selected interface.
@@ -66,7 +84,8 @@ for i in range(5):
     for dev in devices:
         vendor = get_vendor(dev["mac"])
         hostname = get_hostname(dev["ip"])
-        print(f" - {dev['ip']}  |  {dev['mac']}  |  {vendor} | {hostname}")
+        osinfo = os_guess(dev["ip"], iface)
+        print(f" - {dev['ip']}  |  {dev['mac']}  |  {vendor} | {osinfo} | {hostname}")
     time.sleep(2)
         
  
