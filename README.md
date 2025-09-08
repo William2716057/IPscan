@@ -42,3 +42,9 @@ Devices found: 2
  - 192.168.1.1  |  a4:5e:60:12:34:56  |  Cisco Systems | Network device/Router (TTL 255) | router.local
  - 192.168.1.101  |  3c:22:fb:65:43:21  |  Apple, Inc.   | Unix/Linux (TTL 64) | macbook.local
 ```
+
+#### Notes
+
+- Must be run with administrator/root privileges for ARP scanning to work.
+- The TTL → OS mapping is heuristic and may not always be accurate.
+- Some devices may not respond to hostname lookups or ICMP packets.
