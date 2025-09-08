@@ -3,6 +3,7 @@ import scapy.all as scapy
 import netifaces
 import requests
 import time
+import socket
 
 def get_local_ip():
     #Get local IP and default gateway interface (GUID)
@@ -10,6 +11,12 @@ def get_local_ip():
     default_iface = gateways['default'][netifaces.AF_INET][1]
     local_ip = netifaces.ifaddresses(default_iface)[netifaces.AF_INET][0]['addr']
     return local_ip
+
+def get_hostname(ip):
+    try:
+        return socket.gethostbyaddr(ip)[0]
+    except:
+        return "Unknown"
 
 def detect_scapy_iface(local_ip):
     #Detect the correct Scapy interface (GUID) by matching local IP.
@@ -58,7 +65,8 @@ for i in range(5):
     print(f"Devices found: {len(devices)}")
     for dev in devices:
         vendor = get_vendor(dev["mac"])
-        print(f" - {dev['ip']}  |  {dev['mac']}  |  {vendor}")
+        hostname = get_hostname(dev["ip"])
+        print(f" - {dev['ip']}  |  {dev['mac']}  |  {vendor} | {hostname}")
     time.sleep(2)
         
  
